@@ -1,6 +1,6 @@
 from datetime import datetime
 from django.http import HttpResponse
-from chat_creation import main
+from chat_creation import main, create_chat_with_users
 from telechat.models import Chat
 
 
@@ -8,13 +8,11 @@ def index(request):
     # result = create_record_db(1, 3, 2)
     # all_records = get_all_records()
     # return HttpResponse(f"I'm telechat bot! Result: {result}. All records: {all_records}")
-    #
-    #
     # return HttpResponse(f"I'm telechat bot! All records: {str(all_records)}")
 
-    main()
-    #print(get_all_records())
-    #print(get_records_with_name("111"))
+    #main()
+    create_chat_with_users(users=['bananabomber'], chat_title='asdf')
+
     return HttpResponse(f"I'm telechat bot! {get_all_records()}")
 
 

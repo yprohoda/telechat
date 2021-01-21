@@ -2,6 +2,10 @@ TUTORIAL - https://docs.djangoproject.com/en/dev/intro/tutorial01/
 
 ORM - https://djangobook.com/mdj2-models/
 
+
+RUN SERVER - python manage.py runserver
+
+
 Change your models (in models.py).
 python manage.py makemigrations -- to create migrations for those changes
 python manage.py migrate  -- to apply those changes to the database.
