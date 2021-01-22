@@ -9,4 +9,4 @@ class Chat(models.Model):
     date = models.DateTimeField(default=datetime.now, blank=True)
 
     def __str__(self):
-        return self.user_id + " " + self.chat_id + " " + self.manager_id
+        return self.chat_id

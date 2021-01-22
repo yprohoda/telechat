@@ -1,7 +1,7 @@
 from datetime import datetime
 from django.http import HttpResponse
 from telethon.tl.functions.messages import CreateChatRequest
-from chat_creation import main
+from methods import create_chat_and_get_chat_id_main, get_user_id_main
 from telechat.models import Chat
 from telethon.sync import TelegramClient
 from env import API_ID, API_HASH, MOBILE_NUMBER
@@ -19,9 +19,20 @@ if not client.is_user_authorized():
 
 def index(request):
 
-    chat_id = str(main())
+    name = 'bananasdfabomber'
 
-    return HttpResponse(chat_id)
+    user_id = str(get_user_id_main(name))
+    chat_info = check_records_with_name(user_id)
+    print(chat_info)
+    if chat_info:
+        chat_info = [i for i in chat_info]
+        print('chat_info', *chat_info)
+        chat_id = 'User is found in chat=' + str(chat_info[0])
+    else:
+        chat_id = str(create_chat_and_get_chat_id_main())
+
+    info = chat_id + ', User_id=' + user_id
+    return HttpResponse(info)
 
 
 def create_record_db(user_id, chat_id, manager_id):
@@ -40,12 +51,12 @@ def get_all_records():
     return Chat.objects.filter()
 
 
-def get_records_with_name(name):
-    result = Chat.objects.filter(user_id=name)
+def check_records_with_name(user_id):
+    result = Chat.objects.filter(user_id=user_id)
     if result:
         return result
     else:
-        raise Exception(f"No record {name} is found")
+        return False
 
 
 def create_chat_with_users(users, chat_title):
