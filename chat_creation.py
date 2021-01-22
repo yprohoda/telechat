@@ -1,11 +1,8 @@
 import asyncio
-
-
 from telethon.tl.functions.help import GetUserInfoRequest
 from telethon.tl.functions.messages import CreateChatRequest
 from telethon.sync import TelegramClient
 from asyncio import get_event_loop
-
 from env import API_ID, API_HASH, MOBILE_NUMBER
 
 api_id = API_ID
@@ -14,6 +11,7 @@ phone = MOBILE_NUMBER
 
 client = TelegramClient(phone, api_id, api_hash)
 client.connect()
+
 if not client.is_user_authorized():
     client.send_code_request(phone)
     client.sign_in(phone, input('Enter the code: '))
@@ -48,6 +46,6 @@ def main():
 if __name__ == '__main__':
     pass
     # create_chat_with_users(users=['bananabomber', 'Listing_on_P2PB2B'], chat_title='asdf')
-    create_chat_with_users(users=['bananabomber'], chat_title='asdf')
+    # ccreate_chat_with_users(users=['bananabomber'], chat_title='asdf')
 
-    get_user_info_by_name('alexspark21')
+    # get_user_info_by_name('1234')

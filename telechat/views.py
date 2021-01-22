@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from django.http import HttpResponse
 from chat_creation import main, create_chat_with_users
@@ -5,15 +6,20 @@ from telechat.models import Chat
 
 
 def index(request):
-    # result = create_record_db(1, 3, 2)
+    #result = create_record_db(1, 'Bob', 3, 2)
+    print(get_records_with_user_nick('Bob'))
     # all_records = get_all_records()
     # return HttpResponse(f"I'm telechat bot! Result: {result}. All records: {all_records}")
     # return HttpResponse(f"I'm telechat bot! All records: {str(all_records)}")
 
-    #main()
+    # main()
+    queryset = Chat.objects.all()
+    print('Chat ids:', [i.chat_id for i in queryset])
+    print('User ids:', [i.user_id for i in queryset])
+
     create_chat_with_users(users=['bananabomber'], chat_title='asdf')
 
-    return HttpResponse(f"I'm telechat bot! {get_all_records()}")
+    return HttpResponse(f"I'm telechat bot!")
 
 
 # def create_chat_with_users(users, chat_title):
@@ -22,9 +28,10 @@ def index(request):
 #     return newChannelID
 
 
-def create_record_db(user_id, chat_id, manager_id):
+def create_record_db(user_id, user_nick, chat_id, manager_id):
     record = Chat(
         user_id=user_id,
+        user_nick=user_nick,
         chat_id=chat_id,
         manager_id=manager_id,
         date=datetime.now()
@@ -37,9 +44,26 @@ def get_all_records():
     # return Chat.objects.all()  # same: Chat.objects.filter()
     return Chat.objects.filter()
 
-def get_records_with_name(name):
-    result = Chat.objects.filter(user_id=name)
+
+def get_records_with_user_id(user_id):
+    result = Chat.objects.filter(user_id=user_id)
     if result:
+        print(f'Record {user_id} is found')
         return result
     else:
-        raise Exception(f"No record {name} is found")
+        raise Exception(f"No records {user_id} is found")
+
+
+def get_records_with_user_nick(user_nick):
+    result = Chat.objects.filter(user_nick=user_nick)
+    if result:
+        print(f'Record {user_nick} is found')
+        return result
+    else:
+        raise Exception(f"No records {user_nick} is found")
+
+def get_chat_id_by_user_nick(user_nick):
+    result = Chat.objects.filter(user_nick=user_nick)
+    print(result)
+
+
