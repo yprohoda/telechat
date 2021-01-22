@@ -1,37 +1,32 @@
-import asyncio
 from datetime import datetime
 from django.http import HttpResponse
-from chat_creation import main, create_chat_with_users
+from telethon.tl.functions.messages import CreateChatRequest
+from chat_creation import main
 from telechat.models import Chat
+from telethon.sync import TelegramClient
+from env import API_ID, API_HASH, MOBILE_NUMBER
+
+api_id = API_ID
+api_hash = API_HASH
+phone = MOBILE_NUMBER
+client = TelegramClient(phone, api_id, api_hash)
+
+client.connect()
+if not client.is_user_authorized():
+    client.send_code_request(phone)
+    client.sign_in(phone, input('Enter the code: '))
 
 
 def index(request):
-    #result = create_record_db(1, 'Bob', 3, 2)
-    print(get_records_with_user_nick('Bob'))
-    # all_records = get_all_records()
-    # return HttpResponse(f"I'm telechat bot! Result: {result}. All records: {all_records}")
-    # return HttpResponse(f"I'm telechat bot! All records: {str(all_records)}")
 
-    # main()
-    queryset = Chat.objects.all()
-    print('Chat ids:', [i.chat_id for i in queryset])
-    print('User ids:', [i.user_id for i in queryset])
+    chat_id = str(main())
 
-    create_chat_with_users(users=['bananabomber'], chat_title='asdf')
-
-    return HttpResponse(f"I'm telechat bot!")
+    return HttpResponse(chat_id)
 
 
-# def create_chat_with_users(users, chat_title):
-#     createdPrivateChannel = client(CreateChatRequest(title=chat_title, users=users))
-#     newChannelID = createdPrivateChannel.__dict__["chats"][0].__dict__["id"]
-#     return newChannelID
-
-
-def create_record_db(user_id, user_nick, chat_id, manager_id):
+def create_record_db(user_id, chat_id, manager_id):
     record = Chat(
         user_id=user_id,
-        user_nick=user_nick,
         chat_id=chat_id,
         manager_id=manager_id,
         date=datetime.now()
@@ -45,25 +40,21 @@ def get_all_records():
     return Chat.objects.filter()
 
 
-def get_records_with_user_id(user_id):
-    result = Chat.objects.filter(user_id=user_id)
+def get_records_with_name(name):
+    result = Chat.objects.filter(user_id=name)
     if result:
-        print(f'Record {user_id} is found')
         return result
     else:
-        raise Exception(f"No records {user_id} is found")
+        raise Exception(f"No record {name} is found")
 
 
-def get_records_with_user_nick(user_nick):
-    result = Chat.objects.filter(user_nick=user_nick)
-    if result:
-        print(f'Record {user_nick} is found')
-        return result
-    else:
-        raise Exception(f"No records {user_nick} is found")
-
-def get_chat_id_by_user_nick(user_nick):
-    result = Chat.objects.filter(user_nick=user_nick)
-    print(result)
+def create_chat_with_users(users, chat_title):
+    createdPrivateChannel = client(CreateChatRequest(title=chat_title, users=users))
+    newChannelID = createdPrivateChannel.__dict__["chats"][0].__dict__["id"]
+    return newChannelID
 
 
+def get_user_info_by_name(name):
+    info = client.get_entity(name)
+    print(info)
+    return info
