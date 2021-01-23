@@ -1,49 +1,71 @@
 from datetime import datetime
 from django.http import HttpResponse
-from telethon.tl.functions.messages import CreateChatRequest
-from methods import create_chat_and_get_chat_id_main, get_user_id_main
+from methods import create_chat_and_get_chat_id, get_user_id, get_user_name_func
 from telechat.models import Chat
-from telethon.sync import TelegramClient
-from env import API_ID, API_HASH, MOBILE_NUMBER
 
-api_id = API_ID
-api_hash = API_HASH
-phone = MOBILE_NUMBER
-client = TelegramClient(phone, api_id, api_hash)
+NAME = 'bananabomber'  # id = 160718418
 
-client.connect()
-if not client.is_user_authorized():
-    client.send_code_request(phone)
-    client.sign_in(phone, input('Enter the code: '))
 
+# TODO check incorrect name - if name is incorrect make old redirect
+# TODO if name is correct, then:
+# TODO make redirect to new chat / old chat
+# TODO create_chat_and_get_chat_id_main (__name__)
 
 def index(request):
+    name = NAME
 
-    name = 'bananabomber'
+    # check user id in telegram
+    user_id = check_user_name_is_valid(name)
+    print('User_id =', user_id)
 
-    # get id of user in telegram
-    user_id = str(get_user_id_main(name))
+    #
+    if user_id:
+        if not check_existing_chat_for_user_id(int(user_id)):
+            info = create_chat_and_get_chat_id([name])
+        else:
+            info = 'Existing chat is found'
+    else:
+        info = f'User "{name}" is not found'
 
-    # display info on the web page
-    info = check_existing_chat_for_user_id(user_id) + ' for User_id=' + user_id
     return HttpResponse(info)
 
-def check_existing_chat_for_user_id(user_id):
 
-    '''
-    Check existing chat in db
+def check_user_name_is_valid(user_name):
+    """
+    Checks if user is valid and have user_id
+    :param user_name:
+    :return: True or False
+    """
+    try:
+        user_id = str(get_user_id(user_name))
+        print(f'User {user_name} is valid')
+        return user_id
+    except Exception as e:
+        return False
+
+
+def check_existing_chat_for_user_id(user_id):
+    """
+    Checks existing chat in db.
+    Creates chat if it doesn't exist.
     :return: chat_id
-    '''
+    """
+
+    user_name = get_user_name_func(user_id)
+    print('!!!!!!', user_name)
 
     chat_info = check_records_with_name(user_id)
     print(chat_info)
     if chat_info:
         chat_info = [i for i in chat_info]
         print('chat_info', *chat_info)
-        chat_id = 'Existing chat is found=' + str(chat_info[0])
+        info = 'Existing chat is found=' + str(chat_info[0])
+        print(info)
+        return True
     else:
-        chat_id = 'New chat is created=' + str(create_chat_and_get_chat_id_main())
-    return chat_id
+        print('Existing chat is NOT found')
+        return False
+
 
 def create_record_db(user_id, chat_id, manager_id):
     record = Chat(
@@ -67,15 +89,3 @@ def check_records_with_name(user_id):
         return result
     else:
         return False
-
-
-def create_chat_with_users(users, chat_title):
-    createdPrivateChannel = client(CreateChatRequest(title=chat_title, users=users))
-    newChannelID = createdPrivateChannel.__dict__["chats"][0].__dict__["id"]
-    return newChannelID
-
-
-def get_user_info_by_name(name):
-    info = client.get_entity(name)
-    print(info)
-    return info
