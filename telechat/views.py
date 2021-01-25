@@ -4,12 +4,7 @@ from methods import create_chat_and_get_chat_id, get_user_id, get_user_name_func
 from telechat.models import Chat
 
 NAME = 'bananabomber'  # id = 160718418
-
-
-# TODO check incorrect name - if name is incorrect make old redirect
-# TODO if name is correct, then:
-# TODO make redirect to new chat / old chat
-# TODO create_chat_and_get_chat_id_main (__name__)
+MANAGER_ID = '1'
 
 def index(request):
     name = NAME
@@ -21,11 +16,15 @@ def index(request):
     #
     if user_id:
         if not check_existing_chat_for_user_id(int(user_id)):
-            info = create_chat_and_get_chat_id([name])
+            chat_id = create_chat_and_get_chat_id([name])
+            create_record_db(user_id, chat_id, MANAGER_ID)
+            info = 'New chat is created'
         else:
             info = 'Existing chat is found'
+            # TODO redirect to existing chat - http://127.0.0.1:8000/telechat/
     else:
         info = f'User "{name}" is not found'
+        # TODO redicted to old style chat - https://t.me/Listing_on_P2PB2B
 
     return HttpResponse(info)
 
@@ -51,36 +50,22 @@ def check_existing_chat_for_user_id(user_id):
     :return: chat_id
     """
 
-    user_name = get_user_name_func(user_id)
-    print('!!!!!!', user_name)
-
     chat_info = check_records_with_name(user_id)
-    print(chat_info)
     if chat_info:
-        chat_info = [i for i in chat_info]
-        print('chat_info', *chat_info)
-        info = 'Existing chat is found=' + str(chat_info[0])
-        print(info)
-        return True
+        return True  # 'Existing chat is found'
     else:
-        print('Existing chat is NOT found')
-        return False
+        return False  # 'Existing chat is NOT found'
 
 
 def create_record_db(user_id, chat_id, manager_id):
     record = Chat(
-        user_id=user_id,
-        chat_id=chat_id,
-        manager_id=manager_id,
+        user_id=str(user_id),
+        chat_id=str(chat_id),
+        manager_id=str(manager_id),
         date=datetime.now()
     )
     record.save()
     return f"Record {record} is saved"
-
-
-def get_all_records():
-    # return Chat.objects.all()  # same: Chat.objects.filter()
-    return Chat.objects.filter()
 
 
 def check_records_with_name(user_id):
@@ -89,3 +74,7 @@ def check_records_with_name(user_id):
         return result
     else:
         return False
+
+# def get_all_records():
+#     # return Chat.objects.all()  # same: Chat.objects.filter()
+#     return Chat.objects.filter()
