@@ -56,22 +56,7 @@ def create_chat_and_get_chat_id(user_name_list):
     return telegram_chanel.get_created_chat_id()
 
 
-def get_user_id(name):
+def get_user_id_byName(name):
     telegram_chanel = TelegramChanel()
     get_event_loop().run_until_complete(telegram_chanel.get_user_info_by_name(name))
     return telegram_chanel.get_user_id()
-
-
-
-# def create_chat_with_users(users, chat_title, _client):
-#     _client.connect()
-#     created_chat = _client(CreateChatRequest(title=chat_title, users=users))
-#     created_chat_id = created_chat.__dict__["chats"][0].__dict__["id"]
-#     print('!!!!chat_id = ', created_chat_id)
-#
-#
-# def get_user_info_by_name(name, _client):
-#     _client.connect()
-#     user_info = _client.get_entity(name)
-#     print(user_info)
-#     return user_info
