@@ -1,5 +1,6 @@
 import asyncio
 
+from telethon.errors import FloodWaitError
 from telethon.tl.functions.messages import CreateChatRequest, GetFullChatRequest
 from telethon.sync import TelegramClient
 from asyncio import get_event_loop
@@ -45,6 +46,9 @@ class TelegramChanel:
     def get_created_chat_id(self):
         return self.created_chat.__dict__["chats"][0].__dict__["id"]
 
+    def get_user_info(self):
+        return self.user_info
+
     def get_user_id(self):
         return self.user_info.id
 
@@ -66,14 +70,25 @@ def get_user_name_func(user_id):
 
 def create_chat_and_get_chat_id(user_name_list):
     telegram_chanel = TelegramChanel()
-    get_event_loop().run_until_complete(telegram_chanel.create_private_chat(user_name_list, 'test'))
-    return telegram_chanel.get_created_chat_id()
+    try:
+        get_event_loop().run_until_complete(telegram_chanel.create_private_chat(user_name_list, 'test'))
+        return telegram_chanel.get_created_chat_id()
+    except FloodWaitError as e:
+        # TODO change manager-user
+        return False
+
 
 
 def get_user_id_byName(name):
     telegram_chanel = TelegramChanel()
     get_event_loop().run_until_complete(telegram_chanel.get_user_info_by_name(name))
     return telegram_chanel.get_user_id()
+
+
+def get_user_info_by_UserId(user_id):
+    telegram_chanel = TelegramChanel()
+    get_event_loop().run_until_complete(telegram_chanel.get_user_info_by_name(user_id))
+    return telegram_chanel.get_user_info()
 
 
 def get_chat_info(chat_id):
@@ -86,3 +101,4 @@ def send_message_to_chat(chat_id, message):
     telegram_chanel = TelegramChanel()
     get_event_loop().run_until_complete(telegram_chanel.send_message(chat_id, message))
     return telegram_chanel.message()
+

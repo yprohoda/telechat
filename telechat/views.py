@@ -1,7 +1,9 @@
 import webbrowser
 from datetime import datetime
 from django.http import HttpResponse
-from methods import create_chat_and_get_chat_id, get_user_id_byName, send_message_to_chat
+from telethon.errors import FloodWaitError
+
+from methods import create_chat_and_get_chat_id, get_user_id_byName, send_message_to_chat, get_user_info_by_UserId
 from telechat.models import Chat
 
 NAME = 'bananabomber'  # id = 160718418
@@ -12,26 +14,33 @@ MANAGER_ID = '1'
 
 
 #TODO check number of created chats
+#TODO-Front create captcha on request
 
 
 def index(request):
     name = NAME
+
+    info = get_user_info_by_UserId(1542151274)
+    print(info)
 
     # check user id in telegram
     user_id = check_user_name_is_valid(name)
     print('User_id =', user_id)
 
     if user_id:
-        if not asdfcheck_existing_chat_for_user_id(int(user_id)):
+        existing_chat = check_existing_chat_for_user_id(int(user_id))
+        if not existing_chat:
             chat_id = create_chat_and_get_chat_id([name])
-            create_record_db(user_id, chat_id, MANAGER_ID)
-            info = 'New chat is created'
-            send_message_to_chat(chat_id=chat_id, message=MESSAGE)
-            webbrowser.open(LINK_TO_CHAT+f'{chat_id}', new=2)
-
+            if chat_id:
+                create_record_db(user_id, chat_id, MANAGER_ID)
+                info = 'New chat is created'
+                send_message_to_chat(chat_id=chat_id, message=MESSAGE)
+                webbrowser.open(LINK_TO_CHAT+f'{chat_id}', new=2)  # redirect to new-created chat
+            else:
+                info = 'Error happened'
         else:
-            info = 'Existing chat is found'
-            # TODO redirect to existing chat - http://127.0.0.1:8000/telechat/
+            info = f'Existing chat is found={existing_chat}'
+            webbrowser.open(LINK_TO_CHAT+f'{str(existing_chat)}', new=2)  # redirect to existing chat
     else:
         # Redicted to old style
         info = f'User "{name}" is not found'
@@ -63,7 +72,10 @@ def check_existing_chat_for_user_id(user_id):
 
     chat_info = check_records_with_name(user_id)
     if chat_info:
-        return True  # 'Existing chat is found'
+        for i in chat_info:
+            chat_id = i
+
+        return chat_id  # 'Existing chat is found'
     else:
         return False  # 'Existing chat is NOT found'
 
