@@ -27,32 +27,32 @@ class TelegramChanel:
         self.chat_info = await self.client(GetFullChatRequest(chat_id=chat_id))
         await self.client.disconnect()
 
-    def get_created_chat_id(self):
-        return self.created_chat.__dict__["chats"][0].__dict__["id"]
-
     async def get_user_info_by_name(self, name):
         await self.client.connect()
         self.user_info = await self.client.get_entity(name)
         await self.client.disconnect()
-
-    def get_user_id(self):
-        return self.user_info.id
 
     async def get_user_entity_by_id(self, user_id):
         await self.client.connect()
         self.user_info = await self.client.get_entity(user_id)
         await self.client.disconnect()
 
+    async def send_message(self, chat_id, message):
+        await self.client.connect()
+        self.s_message = await self.client.send_message(chat_id, message)
+        await self.client.disconnect()
+
+    def get_created_chat_id(self):
+        return self.created_chat.__dict__["chats"][0].__dict__["id"]
+
+    def get_user_id(self):
+        return self.user_info.id
+
     def get_user_name(self):
         return self.user_info.username
 
     def get_chat_info(self):
         return self.chat_info
-
-    async def send_message(self, chat_id, message):
-        await self.client.connect()
-        self.s_message = await self.client.send_message(chat_id, message)
-        await self.client.disconnect()
 
     def message(self):
         return self.s_message

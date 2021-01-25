@@ -1,17 +1,18 @@
 import webbrowser
 from datetime import datetime
 from django.http import HttpResponse
-
-from methods import create_chat_and_get_chat_id, get_user_id_byName, get_user_name_func, get_chat_info, send_message_to_chat
+from methods import create_chat_and_get_chat_id, get_user_id_byName, send_message_to_chat
 from telechat.models import Chat
 
 NAME = 'bananabomber'  # id = 160718418
 OLD_CHAT = 'https://t.me/Listing_on_P2PB2B'
 MESSAGE = f'Hello, {NAME}, Welcome to P2PB2B'
+LINK_TO_CHAT = 'https://web.telegram.org/#/im?p=c'
 MANAGER_ID = '1'
 
 
-#TODO friendly message
+#TODO check number of created chats
+
 
 def index(request):
     name = NAME
@@ -21,11 +22,13 @@ def index(request):
     print('User_id =', user_id)
 
     if user_id:
-        if not check_existing_chat_for_user_id(int(user_id)):
+        if not asdfcheck_existing_chat_for_user_id(int(user_id)):
             chat_id = create_chat_and_get_chat_id([name])
             create_record_db(user_id, chat_id, MANAGER_ID)
             info = 'New chat is created'
             send_message_to_chat(chat_id=chat_id, message=MESSAGE)
+            webbrowser.open(LINK_TO_CHAT+f'{chat_id}', new=2)
+
         else:
             info = 'Existing chat is found'
             # TODO redirect to existing chat - http://127.0.0.1:8000/telechat/
@@ -82,7 +85,3 @@ def check_records_with_name(user_id):
         return result
     else:
         return False
-
-# def get_all_records():
-#     # return Chat.objects.all()  # same: Chat.objects.filter()
-#     return Chat.objects.filter()
