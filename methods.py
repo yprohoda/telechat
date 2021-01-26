@@ -10,16 +10,24 @@ from env import API_ID, API_HASH, MOBILE_NUMBER
 
 class TelegramChanel:
     def __init__(self):
-        phone_number = MOBILE_NUMBER
-        api_id = API_ID
-        api_hash = API_HASH
+        self.phone_number = MOBILE_NUMBER
+        self.api_id = API_ID
+        self.api_hash = API_HASH
 
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
-        self.client = TelegramClient(phone_number, api_id, api_hash, loop=self.loop)
+        self.client = TelegramClient(self.phone_number, self.api_id, self.api_hash, loop=self.loop)
+        # self.client.connect()
+        # if not self.client.is_user_authorized():
+        #     self.client.send_code_request(self.phone_number)
+        #     self.client.sign_in(self.phone_number, input('Enter code: '))
+
 
     async def create_private_chat(self, users, chat_title):
         await self.client.connect()
+        if not self.client.is_user_authorized():
+            await self.client.send_code_request(self.phone_number)
+            await self.client.sign_in(self.phone_number, input('Enter code: '))
         self.created_chat = await self.client(CreateChatRequest(title=chat_title, users=users))
         await self.client.disconnect()
 
