@@ -17,17 +17,9 @@ class TelegramChanel:
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
         self.client = TelegramClient(self.phone_number, self.api_id, self.api_hash, loop=self.loop)
-        # self.client.connect()
-        # if not self.client.is_user_authorized():
-        #     self.client.send_code_request(self.phone_number)
-        #     self.client.sign_in(self.phone_number, input('Enter code: '))
-
 
     async def create_private_chat(self, users, chat_title):
         await self.client.connect()
-        if not self.client.is_user_authorized():
-            await self.client.send_code_request(self.phone_number)
-            await self.client.sign_in(self.phone_number, input('Enter code: '))
         self.created_chat = await self.client(CreateChatRequest(title=chat_title, users=users))
         await self.client.disconnect()
 
@@ -86,7 +78,6 @@ def create_chat_and_get_chat_id(user_name_list):
         return False
 
 
-
 def get_user_id_byName(name):
     telegram_chanel = TelegramChanel()
     get_event_loop().run_until_complete(telegram_chanel.get_user_info_by_name(name))
@@ -109,4 +100,3 @@ def send_message_to_chat(chat_id, message):
     telegram_chanel = TelegramChanel()
     get_event_loop().run_until_complete(telegram_chanel.send_message(chat_id, message))
     return telegram_chanel.message()
-

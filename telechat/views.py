@@ -1,11 +1,7 @@
-import asyncio
 import webbrowser
 from datetime import datetime
 from django.http import HttpResponse
-from django.shortcuts import render
-from telethon import TelegramClient
 
-from env import MOBILE_NUMBER, API_ID, API_HASH
 from methods import create_chat_and_get_chat_id, get_user_id_byName, send_message_to_chat, get_user_info_by_UserId
 from telechat.models import Chat
 
@@ -18,31 +14,6 @@ MANAGER_ID = '1'
 
 # TODO check number of created chats
 # TODO-Front create captcha on request
-
-def test_form(request):
-    """ http://127.0.0.1:8000/telechat/form """
-    if request.method == "POST":
-        # user = request.POST.get('username')
-        # if user == "mark":
-        #     return HttpResponse('hello mark')
-        get_text = request.POST.get("username")
-
-        def auth(code):
-            phone_number = MOBILE_NUMBER
-            api_id = API_ID
-            api_hash = API_HASH
-
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            client = TelegramClient(phone_number, api_id, api_hash, loop=loop)
-            client.connect()
-            if not client.is_user_authorized():
-                client.send_code_request(phone_number)
-                client.sign_in(phone_number, code)
-
-        auth(get_text)
-
-    return render(request, "form.html")
 
 
 def index(request):
