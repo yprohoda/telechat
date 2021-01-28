@@ -1,8 +1,9 @@
 import webbrowser
 from datetime import datetime
 from django.http import HttpResponse
+from django.shortcuts import redirect
 
-from methods import create_chat_and_get_chat_id, get_user_id_byName, send_message_to_chat, get_user_info_by_UserId
+from telechat.methods import create_chat_and_get_chat_id, get_user_id_byName, send_message_to_chat, get_user_info_by_UserId
 from telechat.models import Chat
 
 NAME = 'bananabomber'  # id = 160718418
@@ -18,6 +19,8 @@ MANAGER_ID = '1'
 
 def index(request):
     name = NAME
+    # info = 'asdf'
+    # redirect('http://www.google.com')
 
     info = get_user_info_by_UserId(1542151274)
     print(info)

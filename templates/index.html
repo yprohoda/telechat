@@ -1,0 +1,66 @@
+<html>
+
+<div class="popup">
+    <input class="btn" id="popup-submit" type="submit" value="Submit">
+    <div id="popup-captcha"></div>
+</div>
+
+<!-- For ease of use, use the jquery.js library directly -->
+<script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+<!-- Introduce an interface that encapsulates the failback--initGeetest -->
+<script src="http://static.geetest.com/static/tools/gt.js"></script>
+
+<script>
+    var handlerPopup = function (captchaObj) {
+        $("#popup-submit").click(function () {
+            var validate = captchaObj.getValidate();
+            if (!validate) {
+                alert('Please complete verification first！');
+                return;
+            }
+            $.ajax({
+                url: "/gt/ajax_validate", // 进行二次验证
+                type: "post",
+                dataType: "json",
+                data: {
+                    // 二次验证所需的三个值
+                    geetest_challenge: validate.geetest_challenge,
+                    geetest_validate: validate.geetest_validate,
+                    geetest_seccode: validate.geetest_seccode
+                },
+                success: function (data) {
+                    if (data && (data.status === "success")) {
+                        $(document.body).html('<h1>Login successful</h1>');
+                    } else {
+                        $(document.body).html('<h1>Login failed</h1>');
+                    }
+                }
+            });
+        });
+        // Pop-up needs to be bound to trigger the verification code pop-up button
+        captchaObj.bindOn("#popup-submit");
+        // Add the verification code to the element whose id is captcha
+        captchaObj.appendTo("#popup-captcha");
+        // More interface reference：http://www.geetest.com/install/sections/idx-client-sdk.html
+    };
+    $.ajax({
+        // Get id，challenge，success（Whether to enable failback）
+        url: "/gt/register?t=" + (new Date()).getTime(), // Add random numbers to prevent caching
+        type: "get",
+        dataType: "json",
+        success: function (data) {
+            // Indicates that the user back-end checks whether the Geetest server is down, generally do not need to pay attention / use the initGeetest interface
+            // Parameter 1: Configuration parameter
+            // Parameter 2: callback, the first parameter verification code object of the callback, which can be used for events such as appendTo later
+            initGeetest({
+                gt: data.gt,
+                challenge: data.challenge,
+                product: "popup", // Product forms, including: float, embed, popup. Note that only valid for PC version verification code
+                offline: !data.success // Indicates that the user background checks whether the Extreme Test server is down, generally no attention is needed
+            }, handlerPopup);
+        }
+    });
+</script>
+
+</body>
+</html>
